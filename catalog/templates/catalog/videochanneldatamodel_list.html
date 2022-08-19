@@ -1,0 +1,15 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  {% if channel_list %}
+  <ul>
+    {% for channel in channel_list %}
+      <li>
+          <a href="{{ channel.get_absolute_url }}">{{ channel.title }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>There are no channels.</p>
+  {% endif %}
+{% endblock %}

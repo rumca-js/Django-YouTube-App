@@ -1,0 +1,27 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>YouTube Index</h1>
+  <p>This is a YouTube Index.</p>
+  <h2>Dynamic content</h2>
+  <p>The index contents:</p>
+  <ul>
+    <li><strong>Links:</strong> {{ num_links }}</li>
+    <li><strong>Channels:</strong> {{ num_channels }}</li>
+  </ul>
+
+With this server you can:
+<ul>
+  <li>create a limited YouTube replacement. No algorithm, no distractions</li>
+  <li>you can choose which videos are important to you</li>
+  <li>you can share your playlist with a friend</li>
+  <li>you can create your own 'database' of video links. You decide what is important</li>
+  <li>you do not have to install anything besides this package, no databases, no setup is required</li>
+  <li>just download source and install on your system: github</li>
+</ul>
+
+<img src="https://i.kym-cdn.com/photos/images/newsfeed/001/582/307/98c.jpg" width="30%">
+
+Version: {{version}}
+
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<h1>Configuration</h1>
+
+<ul>
+ <li>Directory: {{directory}}</li>
+ <li>Version: {{version}}</li>
+</ul>
+
+<h1>Queues</h1>
+<ul>
+    {% for thread in thread_list %}
+       <li>{{ thread.get_thread_name }}: Queue Size: {{thread.get_queue_size}} Current processing: {{ thread.get_process_item }}</li>
+    {% endfor %}
+</ul>
+
+<h1>Advanced</h1>
+<ul>
+  <li><a href="{% url 'importlinks' %}">Import links</a></li>
+  <li><a href="{% url 'importchannels' %}">Import channels</a></li>
+  <li><a href="{% url 'exportdata' %}">Export data</a></li>
+  <li><a href="{% url 'removealllinks' %}">Remove all links</a></li>
+  <li><a href="{% url 'removeallchannels' %}">Remove all channels</a></li>
+</ul>
+
+{% endblock %}
