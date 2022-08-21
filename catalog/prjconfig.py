@@ -10,7 +10,7 @@ class Configuration(object):
        self.directory = Path(".").resolve()
        self.links_directory = self.directory / "link_files"
        self.channels_directory = self.directory / "channel_files"
-       self.version = "0.0.1"
+       self.version = "0.0.2"
        self.server_log_file = self.directory / "server_log_file.txt"
 
        self.enable_logging()

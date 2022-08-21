@@ -1,7 +1,12 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-  <iframe width="560" height="315" src="{{ object.get_embed_link }}" frameborder="0" allowfullscreen></iframe>
+  <div class="container">
+  <!--div style="position:relative;width: 90%;padding-top:46.25%;"-->
+  <iframe src="{{ object.get_embed_link }}" frameborder="0" allowfullscreen class="video"></iframe>
+  <!--iframe src="{{ object.get_embed_link }}" frameborder="0" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe!-->
+  </div>
+
   <h1>{{ object.title }}</h1>
 
   <p><strong>Url:</strong> <a href="{{ object.url }}">{{ object.url }}</a></p>

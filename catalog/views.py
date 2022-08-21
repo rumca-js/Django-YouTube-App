@@ -8,6 +8,7 @@ from .models import VideoLinkDataModel, VideoChannelDataModel, YouTubeLinkBasic
 from .forms import NewLinkForm, ImportLinksForm, ChoiceForm, NewChannelForm, ImportChannelsForm
 from .files.linkcsv import LinksData, LinkData
 from .files.channelcsv import ChannelsData, ChannelData
+from .basictypes import *
 
 
 def index(request):
@@ -264,14 +265,52 @@ class ChannelDetailView(generic.DetailView):
 
 def add_channel(request):
     context = {}
-    form = None
 
+    # if this is a POST request we need to process the form data
     if request.method == 'POST':
+        method = "POST"
+
+        # create a form instance and populate it with data from the request:
         form = NewChannelForm(request.POST)
+
+        # check whether it's valid:
+        if form.is_valid():
+            url = form.cleaned_data['url']
+            artist = form.cleaned_data['artist']
+            album = form.cleaned_data['album']
+            category = form.cleaned_data['category']
+            subcategory = form.cleaned_data['subcategory']
+            title = form.cleaned_data['title']
+
+            ft = VideoChannelDataModel.objects.filter(url=url)
+            if ft.exists():
+                context['form'] = form
+                context['channel'] = ft[0]
+                context['page_title'] = "Add channel"
+                return render(request, 'add_link_exists.html', context)
+            else:
+                record = VideoChannelDataModel(url=url,
+                                            artist=artist,
+                                            album=album,
+                                            title=title,
+                                            category=category,
+                                            subcategory=subcategory)
+                record.save()
+
+                context = {'form': form, 'method': method}
+                context['page_title'] = "Add link"
+                context['channel'] = record
+                return render(request, 'add_channel_added.html', context)
+        #    # process the data in form.cleaned_data as required
+        #    # ...
+        #    # redirect to a new URL:
+        #    #return HttpResponseRedirect('/thanks/')
+
+    # if a GET (or any other method) we'll create a blank form
     else:
         form = NewChannelForm()
 
-    context["form"] = form
+    context = {'form': form,}
     context['page_title'] = "Add channel"
     return render(request, 'add_channel.html', context)
 
@@ -363,6 +402,9 @@ def configuration(request):
     c = Configuration.get_object()
     context['directory'] = c.directory
     context['version'] = c.version
+    context['database_size_bytes'] = get_directory_size_bytes(c.directory)
+    context['database_size_kbytes'] = get_directory_size_bytes(c.directory)/1024
+    context['database_size_mbytes'] = get_directory_size_bytes(c.directory)/1024/1024
 
     threads = c.get_threads()
     for thread in threads:
