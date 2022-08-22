@@ -1,4 +1,5 @@
 from django import forms
+from .models import VideoLinkDataModel, VideoChannelDataModel
 
 # https://docs.djangoproject.com/en/4.1/ref/forms/widgets/
 
@@ -13,6 +14,36 @@ class NewLinkForm(forms.Form):
     artist = forms.CharField(label='Artist', max_length = 100)
     album = forms.CharField(label='Album', max_length = 100)
     title = forms.CharField(label='Title', max_length = 100)
+
+    def __init__(self, *args, **kwargs):
+        init_obj = kwargs.pop('init_obj', ())
+
+        super().__init__(*args, **kwargs)
+
+        if init_obj != ():
+            self.fields['url'] = forms.CharField(label='Url', max_length = 100, initial=init_obj.url)
+            self.fields['category'] = forms.CharField(label='Category', max_length = 100, initial=init_obj.category)
+            self.fields['subcategory'] = forms.CharField(label='Subcategory', max_length = 100, initial=init_obj.subcategory)
+            self.fields['artist'] = forms.CharField(label='Artist', max_length = 100, initial=init_obj.artist)
+            self.fields['album'] = forms.CharField(label='Album', max_length = 100, initial=init_obj.album)
+            self.fields['title'] = forms.CharField(label='Title', max_length = 100, initial=init_obj.title)
+
+    def to_model(self):
+        url = self.cleaned_data['url']
+        artist = self.cleaned_data['artist']
+        album = self.cleaned_data['album']
+        category = self.cleaned_data['category']
+        subcategory = self.cleaned_data['subcategory']
+        title = self.cleaned_data['title']
+
+        record = VideoLinkDataModel(url=url,
+                                    artist=artist,
+                                    album=album,
+                                    title=title,
+                                    category=category,
+                                    subcategory=subcategory)
+
+        return record
 
 
 class NewChannelForm(forms.Form):
@@ -78,8 +109,6 @@ class ChoiceForm(forms.Form):
         album_init = 'Any'
         if 'album' in filters:
             album_init = filters['album']
-
-        selected = 'Music'
 
         super().__init__(*args, **kwargs)
 

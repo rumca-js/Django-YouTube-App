@@ -36,7 +36,7 @@ class LinkListView(generic.ListView):
 
     def get_queryset(self):
         parameter_map = self.get_filters()
-        self._tmp = VideoLinkDataModel.objects.filter(**parameter_map)
+        self._tmp = VideoLinkDataModel.objects.filter(**parameter_map).order_by('title')
 
         return self._tmp
 
@@ -132,31 +132,20 @@ def add_link(request):
 
         # check whether it's valid:
         if form.is_valid():
-            url = form.cleaned_data['url']
-            artist = form.cleaned_data['artist']
-            album = form.cleaned_data['album']
-            category = form.cleaned_data['category']
-            subcategory = form.cleaned_data['subcategory']
-            title = form.cleaned_data['title']
+            model = form.to_model()
 
-            ft = VideoLinkDataModel.objects.filter(url=url)
+            ft = VideoLinkDataModel.objects.filter(url=model.url)
             if ft.exists():
                 context['form'] = form
                 context['link'] = ft[0]
                 context['page_title'] = "Add link"
                 return render(request, 'add_link_exists.html', context)
             else:
-                record = VideoLinkDataModel(url=url,
-                                            artist=artist,
-                                            album=album,
-                                            title=title,
-                                            category=category,
-                                            subcategory=subcategory)
-                record.save()
+                model.save()
 
-                context = {'form': form, 'method': method}
+                context['form'] = form
                 context['page_title'] = "Add link"
-                context['link'] = record
+                context['link'] = model
                 return render(request, 'add_link_added.html', context)
         #    # process the data in form.cleaned_data as required
         #    # ...
@@ -265,6 +254,7 @@ class ChannelDetailView(generic.DetailView):
 
 def add_channel(request):
     context = {}
+    context['page_title'] = "Add channel"
 
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
@@ -286,7 +276,6 @@ def add_channel(request):
             if ft.exists():
                 context['form'] = form
                 context['channel'] = ft[0]
-                context['page_title'] = "Add channel"
                 return render(request, 'add_link_exists.html', context)
             else:
                 record = VideoChannelDataModel(url=url,
@@ -297,8 +286,7 @@ def add_channel(request):
                                             subcategory=subcategory)
                 record.save()
 
-                context = {'form': form, 'method': method}
-                context['page_title'] = "Add link"
+                context['form'] = form
                 context['channel'] = record
                 return render(request, 'add_channel_added.html', context)
         #    # process the data in form.cleaned_data as required
@@ -310,8 +298,7 @@ def add_channel(request):
     else:
         form = NewChannelForm()
 
-    context = {'form': form,}
-    context['page_title'] = "Add channel"
+    context['form'] = form
     return render(request, 'add_channel.html', context)
 
 
@@ -450,11 +437,33 @@ def download_video(request, pk):
 def edit_video(request, pk):
     context = {}
     context['page_title'] = "Edit Video"
+    context['pk'] = pk
 
     ft = VideoLinkDataModel.objects.filter(id=pk)
-    if ft.exists():
-        context["summary_text"] = "x"
-    else:
-        context["summary_text"] = "x"
+    if not ft.exists():
+       return render(request, 'edit_video_does_not_exist.html', context)
 
-    return render(request, 'summary_present.html', context)
+    obj = ft[0]
+
+    if request.method == 'POST':
+        form = NewLinkForm(request.POST)
+        context['form'] = form
+
+        if form.is_valid():
+            model = form.to_model()
+
+            ft = VideoLinkDataModel.objects.filter(url=model.url)
+            if ft.exists():
+                ft.delete()
+                model.save()
+
+                context['link'] = ft[0]
+                return render(request, 'edit_video_ok.html', context)
+
+        context['summary_text'] = "Could not edit video"
+
+        return render(request, 'summary_present', context)
+    else:
+        form = NewLinkForm(init_obj=obj)
+        context['form'] = form
+        return render(request, 'edit_video.html', context)

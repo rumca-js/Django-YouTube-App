@@ -3,6 +3,9 @@ from .threads import *
 from .programwrappers import ytdlp
 from .basictypes import *
 
+__version__ = "0.0.4"
+
+
 class Configuration(object):
    obj = None
 
@@ -10,7 +13,7 @@ class Configuration(object):
        self.directory = Path(".").resolve()
        self.links_directory = self.directory / "link_files"
        self.channels_directory = self.directory / "channel_files"
-       self.version = "0.0.2"
+       self.version = __version__
        self.server_log_file = self.directory / "server_log_file.txt"
 
        self.enable_logging()
