@@ -1,4 +1,4 @@
-{% extends "base_generic.html" %}
+{% extends base_generic %}
 
 {% block content %}
 
@@ -18,11 +18,11 @@
 
 <h1>Advanced</h1>
 <ul>
-  <li><a href="{% url 'importlinks' %}">Import links</a></li>
-  <li><a href="{% url 'importchannels' %}">Import channels</a></li>
-  <li><a href="{% url 'exportdata' %}">Export data</a></li>
-  <li><a href="{% url 'removealllinks' %}">Remove all links</a></li>
-  <li><a href="{% url 'removeallchannels' %}">Remove all channels</a></li>
+  <li><a href="{% url 'catalog:importlinks' %}">Import links</a></li>
+  <li><a href="{% url 'catalog:importchannels' %}">Import channels</a></li>
+  <li><a href="{% url 'catalog:exportdata' %}">Export data</a></li>
+  <li><a href="{% url 'catalog:removealllinks' %}">Remove all links</a></li>
+  <li><a href="{% url 'catalog:removeallchannels' %}">Remove all channels</a></li>
 </ul>
 
 {% endblock %}

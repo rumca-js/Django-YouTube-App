@@ -1,7 +1,7 @@
-{% extends "base_generic.html" %}
+{% extends base_generic %}
 
 {% block content %}
-<form action="/catalog/importchannels" method="post">
+<form action="/{{django_app}}/addlink" method="post">
     {% csrf_token %}
     {{ form }}
     <input type="submit" value="Submit">

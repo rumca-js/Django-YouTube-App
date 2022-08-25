@@ -2,6 +2,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'catalog'
+
 urlpatterns = [
    path('', views.index, name='index'),
    path('links/', views.LinkListView.as_view(), name='links'),

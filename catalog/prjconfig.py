@@ -3,7 +3,7 @@ from .threads import *
 from .programwrappers import ytdlp
 from .basictypes import *
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 
 class Configuration(object):

@@ -1,4 +1,4 @@
-{% extends "base_generic.html" %}
+{% extends base_generic %}
 
 {% block content %}
   <h1>{{ object.title }}</h1>
@@ -9,5 +9,5 @@
   <p><strong>Category:</strong> {{ object.category }}</p>
   <p><strong>Subcategory:</strong> {{ object.subcategory }}</p>
 
-  <a href="/catalog/removechannel/{{ object.id }}">Remove channel</a>
+  <a href="/{{django_app}}/removechannel/{{ object.id }}">Remove channel</a>
 {% endblock %}

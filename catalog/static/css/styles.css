@@ -7,6 +7,15 @@
 input {display: block;}
 
 
+.mainbutton {
+  color : #373737;
+  padding: 5px 12px;
+}
+.mainbutton:hover {
+  background-color: #f7f7f7;
+  color: black;
+}
+
 /* my youtube */
 .container {
   position: relative;
@@ -22,3 +31,4 @@ input {display: block;}
   height: 100%;
   border: 0;
 }
+

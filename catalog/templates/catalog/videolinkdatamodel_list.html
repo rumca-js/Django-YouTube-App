@@ -1,10 +1,9 @@
-{% extends "base_generic.html" %}
+{% extends base_generic %}
 
 {% block content %}
-  <a href="/catalog/links/">All</a>
-  <!--form action="/catalog/links/" method="post"-->
-  <form action="/catalog/links/" method="GET">
-     {% csrf_token %}
+<a href="/{{django_app}}/links/">All</a>
+<!--form action="/{{django_app}}/links/" method="post"-->
+  <form action="/{{django_app}}/links/" method="GET">
      {{ category_form }}
      <input type="submit" value="Submit">
   </form>

@@ -16,20 +16,20 @@
       <div class="col-sm-2">
       {% block sidebar %}
         <ul class="sidebar-nav">
-          <li><a href="{% url 'index' %}">Home</a></li>
-          <li><a href="{% url 'links' %}">All links</a></li>
-          <li><a href="{% url 'channels' %}">All Channels</a></li>
+          <li><a href="{% url 'catalog:index' %}"><div class="mainbutton">Home</div></a></li>
+          <li><a href="{% url 'catalog:links' %}"><div class="mainbutton">All links</div></a></li>
+          <li><a href="{% url 'catalog:channels' %}"><div class="mainbutton">All Channels</div></a></li>
           {% if user.is_authenticated %}
           <hr>
-          <li><a href="{% url 'addlink' %}">Add link</a></li>
-          <li><a href="{% url 'addchannel' %}">Add channel</a></li>
-          <li><a href="{% url 'configuration' %}">Configuration</a></li>
+          <li><a href="{% url 'catalog:addlink' %}"><div class="mainbutton">Add link</div></a></li>
+          <li><a href="{% url 'catalog:addchannel' %}"><div class="mainbutton">Add channel</div></a></li>
+          <li><a href="{% url 'catalog:configuration' %}"><div class="mainbutton">Configuration</div></a></li>
 
           <hr>
-          <li><a href="{% url 'logout' %}">Logout</a></li>
+          <li><a href="{% url 'admin:logout' %}"><div class="mainbutton">Logout</div></a></li>
           {% else %}
           <hr>
-          <li><a href="{% url 'login' %}">Login</a></li>
+          <li><a href="{% url 'admin:login' %}"><div class="mainbutton">Login</div></a></li>
           {% endif %}
         </ul>
      {% endblock %}

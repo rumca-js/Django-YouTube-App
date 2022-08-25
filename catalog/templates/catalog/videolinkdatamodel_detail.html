@@ -1,4 +1,4 @@
-{% extends "base_generic.html" %}
+{% extends base_generic %}
 
 {% block content %}
   <div class="container">
@@ -14,9 +14,9 @@
   <p><strong>Subcategory:</strong> {{ object.subcategory }}</p>
 
   {% if user.is_authenticated %}
-    <a href="/catalog/download_music/{{ object.id }}">Download music</a>
-    <a href="/catalog/download_video/{{ object.id }}">Download video</a>
-    <a href="/catalog/edit_video/{{ object.id }}">Edit video</a>
-    <a href="/catalog/removelink/{{ object.id }}">Remove link</a>
+      <a href="/{{django_app}}/download_music/{{ object.id }}">Download music</a>
+    <a href="/{{django_app}}/download_video/{{ object.id }}">Download video</a>
+    <a href="/{{django_app}}/edit_video/{{ object.id }}">Edit video</a>
+    <a href="/{{django_app}}/removelink/{{ object.id }}">Remove link</a>
   {% endif %}
 {% endblock %}

@@ -17,7 +17,7 @@ class VideoLinkDataModel(models.Model):
 
     def get_absolute_url(self):
         """Returns the URL to access a particular author instance."""
-        return reverse('link-detail', args=[str(self.id)])
+        return reverse('catalog:link-detail', args=[str(self.id)])
 
     def get_video_code(self):
         return VideoLinkDataModel.input2code(self.url)
@@ -112,7 +112,7 @@ class VideoChannelDataModel(models.Model):
 
     def get_absolute_url(self):
         """Returns the URL to access a particular author instance."""
-        return reverse('channel-detail', args=[str(self.id)])
+        return reverse('catalog:channel-detail', args=[str(self.id)])
 
 
 class YouTubeChannelBasic(VideoChannelDataModel):

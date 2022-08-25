@@ -1,0 +1,10 @@
+{% extends base_generic %}
+
+{% block content %}
+
+<ul>
+    <li>Channel added: <a href="{{ channel.get_absolute_url }}">{{channel.title}}</a></li>
+    <li><a href="{% url 'addchannel' %}">Add new channel</a></li>
+</ul>
+
+{% endblock %}
