@@ -4,7 +4,7 @@ from django.views import generic
 from django.db.models.query import QuerySet
 from django.db.models.query import EmptyQuerySet
 
-from .models import VideoLinkDataModel, VideoChannelDataModel, YouTubeLinkBasic
+from .models import VideoLinkDataModel, VideoChannelDataModel, YouTubeLinkComposite
 from .forms import NewLinkForm, ImportLinksForm, ChoiceForm, NewChannelForm, ImportChannelsForm
 from .files.linkcsv import LinksData, LinkData
 from .files.channelcsv import ChannelsData, ChannelData
@@ -20,6 +20,7 @@ def init_context(context):
     context["page_title"] = "YouTube Index"
     context["django_app"] = str(app_dir)
     context["base_generic"] = str(app_dir / "base_generic.html")
+    context["icon_size"] = "30px"
     return context
 
 def get_context(request = None):
@@ -49,7 +50,7 @@ def index(request):
 class LinkListView(generic.ListView):
     model = VideoLinkDataModel
     context_object_name = 'link_list'
-    #paginate_by = 10
+    paginate_by = 20
 
     def get_queryset(self):
         parameter_map = self.get_filters()
@@ -73,14 +74,21 @@ class LinkListView(generic.ListView):
         artists = self.to_dict(artists)
         albums = self.to_dict(albums)
 
+        filters = self.get_filters()
         category_form = ChoiceForm(categories = categories,
                                     subcategories = subcategories,
                                     artists = artists,
                                     albums = albums,
-                                    filters = self.get_filters())
+                                    filters = filters)
 
         context['category_form'] = category_form
         context['page_title'] = "YouTubeIndex Link List"
+
+        filter_string = ""
+        for key in filters:
+            filter_string += "&{0}={1}".format(key, filters[key])
+
+        context['filters'] = filter_string
 
         return context
 
@@ -129,11 +137,18 @@ class LinkDetailView(generic.DetailView):
         # Create any data and add it to the context
         #url = self.object.url
 
-        #if VideoLinkDataModel.objects.filter(url=url).exists():
-        #    # TODO test if it is youtube
-        #    obj = YouTubeLinkBasic(self.object.url)
-        #    context['embed_link'] = obj.get_embed_link()
         context['page_title'] = self.object.title
+
+        y = YouTubeLinkComposite(self.object.url)
+        if not y.has_details():
+            y.request_details_download()
+
+        context['videodescription'] = y.get_description()
+        context['videoviewcount'] = y.get_view_count()
+        context['videothumbsup'] = y.get_thumbs_up()
+        context['videothumbsdown'] = y.get_thumbs_down()
+        context['videouploaddate'] = y.get_upload_date()
+
         return context
 
 
@@ -244,7 +259,7 @@ def remove_all_links(request):
 class ChannelListView(generic.ListView):
     model = VideoChannelDataModel
     context_object_name = 'channel_list'
-    #paginate_by = 10
+    paginate_by = 100
 
     def get_queryset(self):
         self._tmp = VideoChannelDataModel.objects.all()

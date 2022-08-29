@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+import logging
 
 
 class VideoLinkDataModel(models.Model):
@@ -23,8 +24,8 @@ class VideoLinkDataModel(models.Model):
         return VideoLinkDataModel.input2code(self.url)
 
     def input2url(item):
-        code = YouTubeLinkBasic.input2code(item)
-        return YouTubeLinkBasic.code2url(code)
+        code = VideoLinkDataModel.input2code(item)
+        return VideoLinkDataModel.code2url(code)
 
     def code2url(code):
         return 'https://www.youtube.com/watch?v={0}'.format(code)
@@ -51,50 +52,134 @@ class VideoLinkDataModel(models.Model):
     def __str__(self):
         return "{0}/{1}".format(self.title, self.url)
 
+    def get_thumbnail(self):
+        y = YouTubeLinkComposite(self.url)
+        return y.get_thumbnail()
 
-class YouTubeLinkBasic(VideoLinkDataModel):
 
-    def __init__(self, link):
-        super().__init__()
-        self.init_for_link(link)
-        self.url = link
+class VideoLinkDetailsDataModel(models.Model):
 
-    def init_for_link(self, link):
-        self._video_code = ""
-        self.process_input(link)
+    url = models.TextField(max_length=1000, help_text='url')
+    details_json = models.TextField(max_length=1000, help_text='details_json')
+    dead = models.BooleanField(default = False, help_text='dead')
+
+class VideoLinkReturnDislikeDataModel(models.Model):
+    url = models.TextField(max_length=1000, help_text='url')
+    return_dislike_json = models.TextField(max_length=1000, help_text='return_dislike_json')
+    dead = models.BooleanField(default = False, help_text='dead')
+
+
+class YouTubeLinkComposite(object):
+
+    def __init__(self, url = None):
+        self._json = None
+        self._thumbs = None
+
+        if url:
+            self.url = url
+            self.get_details()
 
     def get_video_code(self):
-        return self._video_code
+        return VideoLinkDataModel.input2code(self.url)
 
-    def process_input(self, link):
-        self._video_code = YouTubeLinkBasic.input2code(link)
-        self.url = YouTubeLinkBasic.code2url(self._video_code)
+    def get_details(self):
+        from .prjconfig import Configuration
 
-    def input2url(item):
-        code = YouTubeLinkBasic.input2code(item)
-        return YouTubeLinkBasic.code2url(code)
+        d = VideoLinkDetailsDataModel.objects.filter(url=self.url)
+        r = VideoLinkReturnDislikeDataModel.objects.filter(url=self.url)
 
-    def code2url(code):
-        return 'https://www.youtube.com/watch?v={0}'.format(code)
-
-    def input2code(url):
-        wh = url.find("=")
-        if wh == -1:
-            wh = url.find("youtu.be")
-            if wh == -1:
-                video_code = url
-            else:
-                video_code = url[wh+9:]
+        if not d.exists() or not r.exists():
+            pass
         else:
-            wh2 = url.find("&")
-            if wh2 != -1:
-                video_code = url[wh+1:wh2]
-            else:
-                video_code = url[wh+1:]
-        return video_code
+            if not d[0].dead:
+                from .files.youtubelinkjson import YouTubeJson
+                self._json = YouTubeJson()
+                if not self._json.loads(d[0].details_json):
+                    logging.error("Could not read json for {0}, removing details data".format(self.url))
+                    d.delete()
 
-    def get_embed_link(self):
-        return "https://www.youtube.com/embed/{0}".format(self.get_video_code() )
+            if not r[0].dead:
+                from .files.returnyoutubedislikeapijson import YouTubeThumbsDown
+                self._thumbs = YouTubeThumbsDown()
+                if not self._thumbs.loads(r[0].return_dislike_json):
+                    logging.error("Could not read json for {0}, removing returndislike api data".format(self.url))
+                    r.delete()
+
+    def has_details(self):
+        from .prjconfig import Configuration
+
+        d = VideoLinkDetailsDataModel.objects.filter(url=self.url)
+        r = VideoLinkReturnDislikeDataModel.objects.filter(url=self.url)
+
+        if not d.exists() or not r.exists():
+            return False
+
+        return True
+
+    def get_description(self):
+        if self._json:
+            return self._json.get_description()
+
+    def get_thumbnail(self):
+        if self._json:
+            return self._json.get_thumbnail()
+
+    def get_upload_date(self):
+        if self._json:
+            return self._json.get_upload_date()
+
+    def get_view_count(self):
+        if self._thumbs:
+            return self._thumbs.get_view_count()
+
+    def get_thumbs_up(self):
+        if self._thumbs:
+            return self._thumbs.get_thumbs_up()
+
+    def get_thumbs_down(self):
+        if self._thumbs:
+            return self._thumbs.get_thumbs_down()
+
+    def request_details_download(self):
+        from .prjconfig import Configuration
+        c = Configuration()
+        c.download_link_details(self)
+
+    def download_details(self):
+      from .programwrappers import ytdlp
+      from .files.returnyoutubedislikeapijson import YouTubeThumbsDown
+
+      d = VideoLinkDetailsDataModel.objects.filter(url=self.url)
+      if not d.exists():
+        yt = ytdlp.YTDLP(self.url)
+        json = yt.download_data()
+
+        if json:
+            details_record = VideoLinkDetailsDataModel(url=self.url,
+                                               details_json = json)
+            details_record.save()
+        else:
+            details_record = VideoLinkDetailsDataModel(url=self.url,
+                                               details_json = "",
+                                               dead = True)
+            details_record.save()
+
+      r = VideoLinkReturnDislikeDataModel.objects.filter(url=self.url)
+      if not r.exists():
+        ytr = YouTubeThumbsDown(self)
+        return_json = ytr.download_data()
+
+        if return_json:
+            return_record = VideoLinkReturnDislikeDataModel(url=self.url,
+                                               return_dislike_json = return_json)
+
+            return_record.save()
+        else:
+            return_record = VideoLinkReturnDislikeDataModel(url=self.url,
+                                               return_dislike_json = "",
+                                               dead = True)
+
+            return_record.save()
 
 
 class VideoChannelDataModel(models.Model):

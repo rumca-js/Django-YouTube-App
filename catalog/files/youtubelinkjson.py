@@ -5,11 +5,9 @@ import logging
 
 class YouTubeJson(object):
 
-    def __init__(self, string = None):
+    def __init__(self, url = None):
         self._json = {}
-
-        if string:
-            self.loads(string)
+        self.url = url
 
     def get_json_data(self):
         return json.dumps(self._json)

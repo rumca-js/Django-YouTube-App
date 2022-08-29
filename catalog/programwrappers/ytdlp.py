@@ -43,10 +43,17 @@ class YTDLP(ytdownloader.YouTubeDownloader):
 
         return proc
 
-    def _get_json_data(self):
-        proc = subprocess.run(['yt-dlp', '--dump-json', self._url ], stdout=subprocess.PIPE)
+    def download_data(self, path = None):
+        cmds = ['yt-dlp', '--dump-json', self._url ]
+        logging.info("Downloading: " + " ".join(cmds) + str(path))
+
+        proc = subprocess.run(cmds, stdout=subprocess.PIPE)
         out = self.get_output_ignore(proc)
         self._json_data = out.strip()
+
+        if path is not None:
+           path.write_text(self._json_data)
+
         return self._json_data
 
     @staticmethod

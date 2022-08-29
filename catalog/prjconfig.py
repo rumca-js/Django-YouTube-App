@@ -3,7 +3,9 @@ from .threads import *
 from .programwrappers import ytdlp
 from .basictypes import *
 
-__version__ = "0.0.5"
+from .models import YouTubeLinkComposite
+
+__version__ = "0.0.6"
 
 
 class Configuration(object):
@@ -85,16 +87,25 @@ class Configuration(object):
       yt.download_video('file.mp4')
 
    def t_download_link_details(self, item):
-      logging.info("Downloading link details: ")
+      #logging.info("Downloading details: " + item.url + " " + item.title)
 
-      yt = ytdlp.YTDLP(item.url)
-      yt.save_data('file.txt')
+      from .files.returnyoutubedislikeapijson import YouTubeThumbsDown
+      code = item.get_video_code()
+
+      y = YouTubeLinkComposite(item.url)
+      y.download_details()
 
    def t_download_channel_details(self, item):
       logging.info("Downloading channel details: ")
 
    def t_refresh(self, item):
+
       logging.info("Refreshing: ")
+
+      from .models import VideoLinkDataModel
+      objs = VideoLinkDataModel.objects.all()
+      for obj in objs:
+          self.download_link_details(obj)
 
    def download_music(self, item):
        self.threads[0].add_to_process_list(item)
@@ -107,3 +118,16 @@ class Configuration(object):
 
    def download_channel_details(self, item):
        self.threads[3].add_to_process_list(item)
+
+   def get_link_dir(self, link):
+       code = link.get_video_code()
+      
+       return self.links_directory / code
+
+   def get_link_file(self, link):
+       return self.get_link_dir(link) / "details.json"
+
+   def get_link_json(self, link):
+       from .files.youtubelinkjson import YouTubeJson
+       link_file = self.get_link_file(link)
+       return YouTubeJson(link_file.read_text())

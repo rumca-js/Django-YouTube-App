@@ -3,11 +3,13 @@
 {% block content %}
   <h1>{{ object.title }}</h1>
 
-  <p><strong>Url:</strong> <a href="{{ object.url }}">{{ object.url }}</a></p>
-  <p><strong>Artist:</strong> {{ object.artist }}</p>
-  <p><strong>Album:</strong> {{ object.album }}</p>
-  <p><strong>Category:</strong> {{ object.category }}</p>
-  <p><strong>Subcategory:</strong> {{ object.subcategory }}</p>
+  <p>
+  <div><strong>Url:</strong> <a href="{{ object.url }}">{{ object.url }}</a></div>
+  <span><strong>Artist:</strong> {{ object.artist }}</span>
+  <span><strong>Album:</strong> {{ object.album }}</span>
+  <span><strong>Category:</strong> {{ object.category }}</span>
+  <span><strong>Subcategory:</strong> {{ object.subcategory }}</span>
+  </p>
 
   <a href="/{{django_app}}/removechannel/{{ object.id }}">Remove channel</a>
 {% endblock %}

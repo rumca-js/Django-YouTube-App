@@ -89,7 +89,12 @@ class ThreadJobCommon(threading.Thread):
        self.log_info("All items were processed")
 
    def add_to_process_list(self, item):
-       self._process_list.append(item)
+       #for list_item in self._process_list:
+       #    if item.url == list_item.url:
+       #        return
+
+       if item not in self._process_list:
+           self._process_list.append(item)
 
    def get_processs_list(self):
        return self._process_list
