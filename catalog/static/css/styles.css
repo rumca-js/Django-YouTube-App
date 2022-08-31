@@ -73,8 +73,6 @@ select {display: block;}
 }
 .linklistitemdescription {
     flex: 50%;
-    padding-left:10px;
-    margin-left:10px;
     font-style:italic;
 }
 

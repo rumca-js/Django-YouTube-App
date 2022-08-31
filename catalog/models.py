@@ -140,6 +140,20 @@ class YouTubeLinkComposite(object):
         if self._thumbs:
             return self._thumbs.get_thumbs_down()
 
+    def get_dead(self):
+        d = VideoLinkDetailsDataModel.objects.filter(url=self.url)
+        r = VideoLinkReturnDislikeDataModel.objects.filter(url=self.url)
+
+        dead = False
+        if d.exists():
+            if d[0].dead:
+                dead = True
+        if r.exists():
+            if r[0].dead:
+                dead = True
+
+        return dead
+
     def request_details_download(self):
         from .prjconfig import Configuration
         c = Configuration()
@@ -180,6 +194,21 @@ class YouTubeLinkComposite(object):
                                                dead = True)
 
             return_record.save()
+
+    def reset(self):
+      logging.info("Ressing information about: "+self.url)
+
+      d = VideoLinkDetailsDataModel.objects.filter(url=self.url)
+      if d.exists():
+          if d[0].dead:
+              d[0].dead = False
+              d[0].save()
+
+      r = VideoLinkReturnDislikeDataModel.objects.filter(url=self.url)
+      if r.exists():
+          if r[0].dead:
+              r[0].dead = False
+              r[0].save()
 
 
 class VideoChannelDataModel(models.Model):

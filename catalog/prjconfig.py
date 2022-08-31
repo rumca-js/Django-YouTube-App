@@ -5,7 +5,7 @@ from .basictypes import *
 
 from .models import YouTubeLinkComposite
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 
 
 class Configuration(object):

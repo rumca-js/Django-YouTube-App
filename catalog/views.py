@@ -90,6 +90,10 @@ class LinkListView(generic.ListView):
 
         context['filters'] = filter_string
 
+        from django_user_agents.utils import get_user_agent
+        user_agent = get_user_agent(self.request)
+        context["is_mobile"] = user_agent.is_mobile
+
         return context
 
     def get_uniq(self, field):
@@ -148,6 +152,11 @@ class LinkDetailView(generic.DetailView):
         context['videothumbsup'] = y.get_thumbs_up()
         context['videothumbsdown'] = y.get_thumbs_down()
         context['videouploaddate'] = y.get_upload_date()
+        context['videodead'] = y.get_dead()
+
+        if self.request.GET.get("reset"):
+            logging.info("Resetting")
+            y.reset()
 
         return context
 
