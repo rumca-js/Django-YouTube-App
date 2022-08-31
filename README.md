@@ -8,7 +8,11 @@ Django python project for collecting links.
 
 django-user-agent: [https://github.com/selwin/django-user_agents](https://github.com/selwin/django-user_agents)
 
+```
 pip install pyyaml ua-parser user-agents
 pip install django-user-agents
 
 pip install python-memcached
+
+django_user_agents
+```
