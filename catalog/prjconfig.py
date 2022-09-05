@@ -5,7 +5,7 @@ from .basictypes import *
 
 from .models import YouTubeLinkComposite
 
-__version__ = "0.0.7"
+__version__ = "0.0.8"
 
 
 class Configuration(object):
@@ -51,6 +51,10 @@ class Configuration(object):
        for athread in self.threads:
            athread.set_config(self)
            athread.start()
+
+   def close(self):
+       for athread in self.threads:
+           athread.close()
 
    def get_threads(self):
       return self.threads

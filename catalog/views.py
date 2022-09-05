@@ -53,10 +53,8 @@ class LinkListView(generic.ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        parameter_map = self.get_filters()
-        self._tmp = VideoLinkDataModel.objects.filter(**parameter_map).order_by('title')
-
-        return self._tmp
+        self.filter_form = ChoiceForm(args = self.request.GET)
+        return self.filter_form.get_filtered_objects()
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get the context
@@ -64,31 +62,10 @@ class LinkListView(generic.ListView):
         context = init_context(context)
         # Create any data and add it to the context
 
-        categories = self.get_uniq('category')
-        subcategories = self.get_uniq('subcategory')
-        artists = self.get_uniq('artist')
-        albums = self.get_uniq('album')
+        self.filter_form.create()
 
-        categories = self.to_dict(categories)
-        subcategories = self.to_dict(subcategories)
-        artists = self.to_dict(artists)
-        albums = self.to_dict(albums)
-
-        filters = self.get_filters()
-        category_form = ChoiceForm(categories = categories,
-                                    subcategories = subcategories,
-                                    artists = artists,
-                                    albums = albums,
-                                    filters = filters)
-
-        context['category_form'] = category_form
+        context['category_form'] = self.filter_form
         context['page_title'] = "YouTubeIndex Link List"
-
-        filter_string = ""
-        for key in filters:
-            filter_string += "&{0}={1}".format(key, filters[key])
-
-        context['filters'] = filter_string
 
         from django_user_agents.utils import get_user_agent
         user_agent = get_user_agent(self.request)
