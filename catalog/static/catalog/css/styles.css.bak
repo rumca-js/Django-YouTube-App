@@ -5,6 +5,9 @@
     padding: 0;
     list-style: none;
 }
+.page-body {
+    background-color:#F9F9F9
+}
 
 .mainbutton {
   color : #373737;
@@ -56,7 +59,7 @@ select {display: block;}
   /* border: 1px solid #373737; */
   /* display: block; */
   display: flex;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
 }
 
 .longbutton:hover {
@@ -65,7 +68,7 @@ select {display: block;}
 }
 
 .linklistthumbnail {
-    width: 100%;
+    width: 10%;
 }
 .linklistitemtitle {
     flex: 50%;
