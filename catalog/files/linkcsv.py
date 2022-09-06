@@ -5,6 +5,8 @@ class LinkData(object):
          delimiter = ";"
          link_info = row_data.split(delimiter)
 
+         print(link_info)
+
          self.url = link_info[0]
          self.artist = link_info[1]
          self.album = link_info[2]
@@ -14,7 +16,7 @@ class LinkData(object):
          self.subcategory = link_info[6]
 
     def to_string(link):
-        return "{0};{1};{2};{3};{4};{5}".format(link.url, link.artist, link.album, link.title, "False", link.category, link.subcategory)
+        return "{0};{1};{2};{3};{4};{5};{6}".format(link.url, link.artist, link.album, link.title, "False", link.category, link.subcategory)
 
 
 class LinksData(object):

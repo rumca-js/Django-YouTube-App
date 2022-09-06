@@ -5,7 +5,7 @@ import logging
 
 class VideoLinkDataModel(models.Model):
 
-    url = models.TextField(max_length=1000, help_text='url')
+    url = models.TextField(max_length=1000, help_text='url', unique=True)
     artist = models.TextField(max_length=1000, help_text='artist')
     album = models.TextField(max_length=1000, help_text='album')
     title = models.TextField(max_length=1000, help_text='title')
@@ -59,12 +59,12 @@ class VideoLinkDataModel(models.Model):
 
 class VideoLinkDetailsDataModel(models.Model):
 
-    url = models.TextField(max_length=1000, help_text='url')
+    url = models.TextField(max_length=1000, help_text='url') #, unique=True)
     details_json = models.TextField(max_length=1000, help_text='details_json')
     dead = models.BooleanField(default = False, help_text='dead')
 
 class VideoLinkReturnDislikeDataModel(models.Model):
-    url = models.TextField(max_length=1000, help_text='url')
+    url = models.TextField(max_length=1000, help_text='url', unique=True)
     return_dislike_json = models.TextField(max_length=1000, help_text='return_dislike_json')
     dead = models.BooleanField(default = False, help_text='dead')
 
@@ -213,7 +213,7 @@ class YouTubeLinkComposite(object):
 
 class VideoChannelDataModel(models.Model):
 
-    url = models.TextField(max_length=1000, help_text='url')
+    url = models.TextField(max_length=1000, help_text='url', unique=True)
     artist = models.TextField(max_length=1000, help_text='artist', default="")
     album = models.TextField(max_length=1000, help_text='album', default="")
     title = models.TextField(max_length=1000, help_text='title', default="")
