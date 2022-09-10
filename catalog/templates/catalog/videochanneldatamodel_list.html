@@ -6,7 +6,7 @@
     {% for channel in channel_list %}
       <li>
           <a href="{{ channel.get_absolute_url }}" class="longbutton">
-              {{ channel.title }}
+              {{ channel.title }} - [{{channel.artist}} {{channel.album}} {{channel.category}} {{channel.subcategory}}]
           </a>
       </li>
     {% endfor %}

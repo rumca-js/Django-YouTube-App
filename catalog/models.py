@@ -5,13 +5,13 @@ import logging
 
 class VideoLinkDataModel(models.Model):
 
-    url = models.TextField(max_length=1000, help_text='url', unique=True)
-    artist = models.TextField(max_length=1000, help_text='artist')
-    album = models.TextField(max_length=1000, help_text='album')
-    title = models.TextField(max_length=1000, help_text='title')
-    category = models.TextField(max_length=1000, help_text='category')
-    subcategory = models.TextField(max_length=1000, help_text='subcategory')
-    tag = models.TextField(max_length=1000, help_text='tag')
+    url = models.CharField(max_length=1000, unique=True)
+    artist = models.CharField(max_length=1000)
+    album = models.CharField(max_length=1000)
+    title = models.CharField(max_length=1000)
+    category = models.CharField(max_length=1000)
+    subcategory = models.CharField(max_length=1000)
+    tag = models.CharField(max_length=1000)
 
     class Meta:
         ordering = ['artist', 'album', 'title']
@@ -59,13 +59,13 @@ class VideoLinkDataModel(models.Model):
 
 class VideoLinkDetailsDataModel(models.Model):
 
-    url = models.TextField(max_length=1000, help_text='url') #, unique=True)
-    details_json = models.TextField(max_length=1000, help_text='details_json')
+    url = models.CharField(max_length=1000, help_text='url') #, unique=True)
+    details_json = models.CharField(max_length=1000, help_text='details_json')
     dead = models.BooleanField(default = False, help_text='dead')
 
 class VideoLinkReturnDislikeDataModel(models.Model):
-    url = models.TextField(max_length=1000, help_text='url', unique=True)
-    return_dislike_json = models.TextField(max_length=1000, help_text='return_dislike_json')
+    url = models.CharField(max_length=1000, help_text='url', unique=True)
+    return_dislike_json = models.CharField(max_length=1000, help_text='return_dislike_json')
     dead = models.BooleanField(default = False, help_text='dead')
 
 
@@ -213,13 +213,13 @@ class YouTubeLinkComposite(object):
 
 class VideoChannelDataModel(models.Model):
 
-    url = models.TextField(max_length=1000, help_text='url', unique=True)
-    artist = models.TextField(max_length=1000, help_text='artist', default="")
-    album = models.TextField(max_length=1000, help_text='album', default="")
-    title = models.TextField(max_length=1000, help_text='title', default="")
-    category = models.TextField(max_length=1000, help_text='category', default="")
-    subcategory = models.TextField(max_length=1000, help_text='subcategory', default="")
-    tag = models.TextField(max_length=1000, help_text='tag', default="")
+    url = models.CharField(max_length=1000, unique=True)
+    artist = models.CharField(max_length=1000, default="")
+    album = models.CharField(max_length=1000, default="")
+    title = models.CharField(max_length=1000, default="")
+    category = models.CharField(max_length=1000, default="")
+    subcategory = models.CharField(max_length=1000, default="")
+    tag = models.CharField(max_length=1000, default="")
 
     class Meta:
         ordering = ['title']

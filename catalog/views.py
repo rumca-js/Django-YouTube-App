@@ -13,13 +13,13 @@ from pathlib import Path
 
 
 # https://stackoverflow.com/questions/66630043/django-is-loading-template-from-the-wrong-app
-app_dir = Path("catalog")
+app_name = Path("catalog")
 
 
 def init_context(context):
     context["page_title"] = "YouTube Index"
-    context["django_app"] = str(app_dir)
-    context["base_generic"] = str(app_dir / "base_generic.html")
+    context["django_app"] = str(app_name)
+    context["base_generic"] = str(app_name / "base_generic.html")
     context["icon_size"] = "30px"
 
     c = Configuration.get_object()
@@ -42,10 +42,9 @@ def index(request):
 
     context['num_links'] = num_links
     context['num_channels'] = num_channels
-    context['page_title'] = "YouTube Index"
 
     # Render the HTML template index.html with the data in the context variable
-    return render(request, app_dir / 'index.html', context=context)
+    return render(request, app_name / 'index.html', context=context)
 
 
 class LinkListView(generic.ListView):
@@ -66,7 +65,7 @@ class LinkListView(generic.ListView):
         self.filter_form.create()
 
         context['category_form'] = self.filter_form
-        context['page_title'] = "YouTubeIndex Link List"
+        context['page_title'] += " - Link List"
 
         from django_user_agents.utils import get_user_agent
         user_agent = get_user_agent(self.request)
@@ -119,7 +118,7 @@ class LinkDetailView(generic.DetailView):
         # Create any data and add it to the context
         #url = self.object.url
 
-        context['page_title'] = self.object.title
+        context['page_title'] += " - " + self.object.title
 
         y = YouTubeLinkComposite(self.object.url)
         if not y.has_details():
@@ -141,7 +140,7 @@ class LinkDetailView(generic.DetailView):
 
 def add_link(request):
     context = get_context(request)
-    context['page_title'] = "Add link"
+    context['page_title'] += " - Add link"
 
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
@@ -150,38 +149,39 @@ def add_link(request):
         # create a form instance and populate it with data from the request:
         form = NewLinkForm(request.POST)
 
+        ft = VideoLinkDataModel.objects.filter(url=request.POST.get('url'))
+        if ft.exists():
+            context['form'] = form
+            context['link'] = ft[0]
+            return render(request, app_name / 'add_link_exists.html', context)
+
         # check whether it's valid:
         if form.is_valid():
-            model = form.to_model()
+            form.save()
 
-            ft = VideoLinkDataModel.objects.filter(url=model.url)
-            if ft.exists():
-                context['form'] = form
-                context['link'] = ft[0]
-                return render(request, app_dir / 'add_link_exists.html', context)
-            else:
-                model.save()
-
-                context['form'] = form
-                context['link'] = model
-                return render(request, app_dir / 'add_link_added.html', context)
+            context['form'] = form
+            context['link'] = ft[0]
+            return render(request, app_name / 'add_link_added.html', context)
         #    # process the data in form.cleaned_data as required
         #    # ...
         #    # redirect to a new URL:
         #    #return HttpResponseRedirect('/thanks/')
+        else:
+            context["summary_text"] = "Form is invalid"
+            return render(request, app_name / 'summary_present.html', context)
 
     # if a GET (or any other method) we'll create a blank form
     else:
         form = NewLinkForm()
         context['form'] = form
 
-    return render(request, app_dir / 'add_link.html', context)
+    return render(request, app_name / 'add_link.html', context)
 
 
 def import_links(request):
     summary_text = ""
     context = get_context(request)
-    context['page_title'] = "Import links"
+    context['page_title'] += " - Import links"
 
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
@@ -209,38 +209,37 @@ def import_links(request):
 
         context["form"] = form
         context['summary_text'] = summary_text
-        return render(request, app_dir / 'import_links_summary.html', context)
+        return render(request, app_name / 'import_links_summary.html', context)
 
     # if a GET (or any other method) we'll create a blank form
     else:
         form = ImportLinksForm()
         context["form"] = form
-        context['page_title'] = "Import links"
-        return render(request, app_dir / 'import_links.html', context)
+        return render(request, app_name / 'import_links.html', context)
 
 
 def remove_link(request, pk):
     context = get_context(request)
-    context['page_title'] = "Remove link"
+    context['page_title'] += " - Remove link"
 
     ft = VideoLinkDataModel.objects.filter(id=pk)
     if ft.exists():
         ft.delete()
-        return render(request, app_dir / 'remove_link_ok.html', context)
+        return render(request, app_name / 'remove_link_ok.html', context)
     else:
-        return render(request, app_dir / 'remove_link_nok.html', context)
+        return render(request, app_name / 'remove_link_nok.html', context)
 
 
 def remove_all_links(request):
     context = get_context(request)
-    context['page_title'] = "Remove all links"
+    context['page_title'] += "Remove all links"
 
     ft = VideoLinkDataModel.objects.all()
     if ft.exists():
         ft.delete()
-        return render(request, app_dir / 'remove_all_links_ok.html', context)
+        return render(request, app_name / 'remove_all_links_ok.html', context)
     else:
-        return render(request, app_dir / 'remove_all_links_nok.html', context)
+        return render(request, app_name / 'remove_all_links_nok.html', context)
 
 
 class ChannelListView(generic.ListView):
@@ -256,7 +255,7 @@ class ChannelListView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(ChannelListView, self).get_context_data(**kwargs)
         context = init_context(context)
-        context['page_title'] = "YouTubeIndex"
+        context['page_title'] += " - Channel list"
         return context
 
 
@@ -268,12 +267,12 @@ class ChannelDetailView(generic.DetailView):
         context = super(ChannelDetailView, self).get_context_data(**kwargs)
         context = init_context(context)
 
-        context['page_title'] = self.object.title
+        context['page_title'] += self.object.title
         return context
 
 def add_channel(request):
     context = get_context(request)
-    context['page_title'] = "Add channel"
+    context['page_title'] += " - Add channel"
 
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
@@ -284,30 +283,20 @@ def add_channel(request):
 
         # check whether it's valid:
         if form.is_valid():
-            url = form.cleaned_data['url']
-            artist = form.cleaned_data['artist']
-            album = form.cleaned_data['album']
-            category = form.cleaned_data['category']
-            subcategory = form.cleaned_data['subcategory']
-            title = form.cleaned_data['title']
+            form.save()
 
-            ft = VideoChannelDataModel.objects.filter(url=url)
+            ft = VideoChannelDataModel.objects.filter(url=model.url)
             if ft.exists():
                 context['form'] = form
                 context['channel'] = ft[0]
-                return render(request, app_dir / 'add_link_exists.html', context)
+                return render(request, app_name / 'add_channel_exists.html', context)
             else:
-                record = VideoChannelDataModel(url=url,
-                                            artist=artist,
-                                            album=album,
-                                            title=title,
-                                            category=category,
-                                            subcategory=subcategory)
-                record.save()
-
                 context['form'] = form
-                context['channel'] = record
-                return render(request, app_dir / 'add_channel_added.html', context)
+                context['channel'] = model
+                return render(request, app_name / 'add_channel_added.html', context)
+        else:
+            context["summary_text"] = "Form is invalid"
+            return render(request, app_name / 'summary_present.html', context)
         #    # process the data in form.cleaned_data as required
         #    # ...
         #    # redirect to a new URL:
@@ -318,12 +307,12 @@ def add_channel(request):
         form = NewChannelForm()
         context['form'] = form
 
-    return render(request, app_dir / 'add_channel.html', context)
+    return render(request, app_name / 'add_channel.html', context)
 
 
 def import_channels(request):
     context = get_context(request)
-    context['page_title'] = "Import channels"
+    context['page_title'] += " - Import channels"
 
     form = None
     summary_text = ""
@@ -348,43 +337,42 @@ def import_channels(request):
                                                 subcategory=channel.subcategory)
                     record.save()
                     summary_text += channel.title + " " + channel.url + " " + channel.artist + " OK\n"
-        return render(request, app_dir / 'import_channels_summary.html', context)
+        return render(request, app_name / 'import_channels_summary.html', context)
     else:
         form = ImportChannelsForm()
 
         context["form"] = form
         context["summary_text"] = summary_text
-        context['page_title'] = "Import channels"
-        return render(request, app_dir / 'import_channels.html', context)
+        return render(request, app_name / 'import_channels.html', context)
 
 
 def remove_channel(request, pk):
     context = get_context(request)
-    context['page_title'] = "Remove channel"
+    context['page_title'] += " - Remove channel"
 
     ft = VideoChannelDataModel.objects.filter(id=pk)
     if ft.exists():
         ft.delete()
-        return render(request, app_dir / 'remove_channel_ok.html', context)
+        return render(request, app_name / 'remove_channel_ok.html', context)
     else:
-        return render(request, app_dir / 'remove_channel_nok.html', context)
+        return render(request, app_name / 'remove_channel_nok.html', context)
 
 
 def remove_all_channels(request):
     context = get_context(request)
-    context['page_title'] = "Remove all channels"
+    context['page_title'] += "Remove all channels"
 
     ft = VideoChannelDataModel.objects.all()
     if ft.exists():
         ft.delete()
-        return render(request, app_dir / 'remove_all_channels_ok.html', context)
+        return render(request, app_name / 'remove_all_channels_ok.html', context)
     else:
-        return render(request, app_dir / 'remove_all_channels_nok.html', context)
+        return render(request, app_name / 'remove_all_channels_nok.html', context)
 
 
 def export_data(request):
     context = get_context(request)
-    context['page_title'] = "Export data"
+    context['page_title'] += " - Export data"
 
     ft = VideoChannelDataModel.objects.all()
     summary_text = ""
@@ -401,14 +389,14 @@ def export_data(request):
         
     context["summary_text"] = summary_text
 
-    return render(request, app_dir / 'summary_present.html', context)
+    return render(request, app_name / 'summary_present.html', context)
 
 
 from .prjconfig import Configuration
 
 def configuration(request):
     context = get_context(request)
-    context['page_title'] = "Configuration"
+    context['page_title'] += " - Configuration"
 
     c = Configuration.get_object()
     context['directory'] = c.directory
@@ -423,12 +411,12 @@ def configuration(request):
 
     context['thread_list'] = threads
 
-    return render(request, app_dir / 'configuration.html', context)
+    return render(request, app_name / 'configuration.html', context)
 
 
 def download_music(request, pk):
     context = get_context(request)
-    context['page_title'] = "Download music"
+    context['page_title'] += " - Download music"
 
     ft = VideoLinkDataModel.objects.filter(id=pk)
     if ft.exists():
@@ -439,12 +427,12 @@ def download_music(request, pk):
     c = Configuration.get_object()
     c.download_music(ft[0])
 
-    return render(request, app_dir / 'summary_present.html', context)
+    return render(request, app_name / 'summary_present.html', context)
 
 
 def download_video(request, pk):
     context = get_context(request)
-    context['page_title'] = "Download video"
+    context['page_title'] += " - Download video"
 
     ft = VideoLinkDataModel.objects.filter(id=pk)
     if ft.exists():
@@ -455,17 +443,17 @@ def download_video(request, pk):
     c = Configuration.get_object()
     c.download_video(ft[0])
 
-    return render(request, app_dir / 'summary_present.html', context)
+    return render(request, app_name / 'summary_present.html', context)
 
 
 def edit_video(request, pk):
     context = get_context(request)
-    context['page_title'] = "Edit video"
+    context['page_title'] += " - Edit video"
     context['pk'] = pk
 
     ft = VideoLinkDataModel.objects.filter(id=pk)
     if not ft.exists():
-       return render(request, app_dir / 'edit_video_does_not_exist.html', context)
+       return render(request, app_name / 'edit_video_does_not_exist.html', context)
 
     obj = ft[0]
 
@@ -482,12 +470,12 @@ def edit_video(request, pk):
                 model.save()
 
                 context['link'] = ft[0]
-                return render(request, app_dir / 'edit_video_ok.html', context)
+                return render(request, app_name / 'edit_video_ok.html', context)
 
         context['summary_text'] = "Could not edit video"
 
-        return render(request, app_dir / 'summary_present', context)
+        return render(request, app_name / 'summary_present', context)
     else:
         form = NewLinkForm(init_obj=obj)
         context['form'] = form
-        return render(request, app_dir / 'edit_video.html', context)
+        return render(request, app_name / 'edit_video.html', context)

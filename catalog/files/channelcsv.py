@@ -6,15 +6,18 @@ class ChannelData(object):
 
          self.url = channel_info[0]
          self.artist = channel_info[1]
-         self.title = channel_info[1]
-
-         self.album = ""
-         self.dead = False
-         self.category = ""
-         self.subcategory = ""
+         self.album = channel_info[2]
+         self.title = channel_info[3]
+         self.category = channel_info[4]
+         self.subcategory = channel_info[5]
 
     def to_string(channel):
-        return "{0};{1}".format(channel.url, channel.title)
+        return "{0};{1};{2};{3};{4};{5}".format(channel.url,
+                channel.artist,
+                channel.album,
+                channel.title,
+                channel.category,
+                channel.subcategory)
 
 
 class ChannelsData(object):

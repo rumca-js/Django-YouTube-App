@@ -5,7 +5,6 @@ from .basictypes import *
 
 from .models import YouTubeLinkComposite
 
-
 __version__ = "0.0.9"
 
 
@@ -14,8 +13,6 @@ class Configuration(object):
 
    def __init__(self):
        self.directory = Path(".").resolve()
-       self.links_directory = self.directory / "link_files"
-       self.channels_directory = self.directory / "channel_files"
        self.version = __version__
        self.server_log_file = self.directory / "server_log_file.txt"
 
@@ -124,15 +121,10 @@ class Configuration(object):
    def download_channel_details(self, item):
        self.threads[3].add_to_process_list(item)
 
-   def get_link_dir(self, link):
-       code = link.get_video_code()
-      
-       return self.links_directory / code
+   def get_export_path(self):
+       from .views import app_name
+       return self.directory / 'exports' / app_name
 
-   def get_link_file(self, link):
-       return self.get_link_dir(link) / "details.json"
-
-   def get_link_json(self, link):
-       from .files.youtubelinkjson import YouTubeJson
-       link_file = self.get_link_file(link)
-       return YouTubeJson(link_file.read_text())
+   def get_data_path(self):
+       from .views import app_name
+       return self.directory / 'data' / app_name
