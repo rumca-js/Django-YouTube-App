@@ -12,10 +12,10 @@ urlpatterns = [
    path('importlinks', views.import_links, name='importlinks'),
    path('removelink/<int:pk>/', views.remove_link, name='removelink'),
    path('removealllinks/', views.remove_all_links, name='removealllinks'),
+   path('edit_video/<int:pk>/', views.edit_video, name='editvideo'),
 
    path('download_music/<int:pk>/', views.download_music, name='download_music'),
    path('download_video/<int:pk>/', views.download_video, name='download_video'),
-   path('edit_video/<int:pk>/', views.edit_video, name='download_video'),
 
    path('channels/', views.ChannelListView.as_view(), name='channels'),
    path('channel/<int:pk>/', views.ChannelDetailView.as_view(), name='channel-detail'),
@@ -23,6 +23,7 @@ urlpatterns = [
    path('importchannels', views.import_channels, name='importchannels'),
    path('removechannel/<int:pk>/', views.remove_channel, name='importchannels'),
    path('removeallchannels/', views.remove_all_channels, name='removeallchannels'),
+   path('edit_channel/<int:pk>/', views.edit_channel, name='editchannel'),
 
    path('export/', views.export_data, name='exportdata'),
    path('configuration/', views.configuration, name='configuration'),

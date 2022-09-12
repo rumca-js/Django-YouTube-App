@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views import generic
+from django.urls import reverse
 
 from django.db.models.query import QuerySet
 from django.db.models.query import EmptyQuerySet
@@ -63,6 +64,8 @@ class LinkListView(generic.ListView):
         # Create any data and add it to the context
 
         self.filter_form.create()
+        self.filter_form.method = "GET"
+        self.filter_form.action_url = reverse('catalog:links')
 
         context['category_form'] = self.filter_form
         context['page_title'] += " - Link List"
@@ -72,40 +75,6 @@ class LinkListView(generic.ListView):
         context["is_mobile"] = user_agent.is_mobile
 
         return context
-
-    def get_uniq(self, field):
-        values = set()
-        for val in self._tmp.values(field):
-            if str(val).strip() != "":
-                values.add(val[field])
-        return values
-
-    def to_dict(self, alist):
-        result = [('Any', 'Any')]
-        for item in sorted(alist):
-            if item.strip() != "":
-                result.append((item, item))
-        return result
-
-    def get_filters(self):
-        parameter_map = {}
-
-        category = self.request.GET.get("category")
-        if category and category != "Any":
-           parameter_map['category'] = category
-
-        subcategory = self.request.GET.get("subcategory")
-        if subcategory and subcategory != "Any":
-           parameter_map['subcategory'] = subcategory
-
-        artist = self.request.GET.get("artist")
-        if artist and artist != "Any":
-           parameter_map['artist'] = artist
-
-        album = self.request.GET.get("album")
-        if album and album != "Any":
-           parameter_map['album'] = album
-        return parameter_map
 
 
 class LinkDetailView(generic.DetailView):
@@ -173,9 +142,11 @@ def add_link(request):
     # if a GET (or any other method) we'll create a blank form
     else:
         form = NewLinkForm()
+        form.method = "POST"
+        form.action_url = reverse('catalog:addlink')
         context['form'] = form
 
-    return render(request, app_name / 'add_link.html', context)
+    return render(request, app_name / 'form_basic.html', context)
 
 
 def import_links(request):
@@ -214,8 +185,10 @@ def import_links(request):
     # if a GET (or any other method) we'll create a blank form
     else:
         form = ImportLinksForm()
+        form.method = "POST"
+        form.action_url = reverse('catalog:importlinks')
         context["form"] = form
-        return render(request, app_name / 'import_links.html', context)
+        return render(request, app_name / 'form_basic.html', context)
 
 
 def remove_link(request, pk):
@@ -305,9 +278,11 @@ def add_channel(request):
     # if a GET (or any other method) we'll create a blank form
     else:
         form = NewChannelForm()
+        form.method = "POST"
+        form.action_url = reverse('catalog:addchannel')
         context['form'] = form
 
-    return render(request, app_name / 'add_channel.html', context)
+    return render(request, app_name / 'form_basic.html', context)
 
 
 def import_channels(request):
@@ -340,10 +315,13 @@ def import_channels(request):
         return render(request, app_name / 'import_channels_summary.html', context)
     else:
         form = ImportChannelsForm()
-
+        form.method = "POST"
+        form.action_url = reverse('catalog:importchannels')
         context["form"] = form
+
         context["summary_text"] = summary_text
-        return render(request, app_name / 'import_channels.html', context)
+
+        return render(request, app_name / 'form_basic.html', context)
 
 
 def remove_channel(request, pk):
@@ -458,11 +436,11 @@ def edit_video(request, pk):
     obj = ft[0]
 
     if request.method == 'POST':
-        form = NewLinkForm(request.POST)
+        form = NewLinkForm(request.POST, instance=obj[0])
         context['form'] = form
 
         if form.is_valid():
-            model = form.to_model()
+            form.save()
 
             ft = VideoLinkDataModel.objects.filter(url=model.url)
             if ft.exists():
@@ -476,6 +454,44 @@ def edit_video(request, pk):
 
         return render(request, app_name / 'summary_present', context)
     else:
-        form = NewLinkForm(init_obj=obj)
+        form = NewLinkForm(instance=obj)
+        form.method = "POST"
+        form.action_url = reverse('catalog:editvideo', args = [pk])
         context['form'] = form
-        return render(request, app_name / 'edit_video.html', context)
+        return render(request, app_name / 'form_basic.html', context)
+
+
+def edit_channel(request, pk):
+    context = get_context(request)
+    context['page_title'] += " - Edit channel"
+    context['pk'] = pk
+
+    ft = VideoChannelDataModel.objects.filter(id=pk)
+    if not ft.exists():
+       return render(request, app_name / 'edit_channel_does_not_exist.html', context)
+
+    obj = ft[0]
+
+    if request.method == 'POST':
+        form = NewChannelForm(request.POST, instance=obj[0])
+        context['form'] = form
+
+        if form.is_valid():
+            form.save()
+
+            ft = VideoChannelDataModel.objects.filter(url=model.url)
+            if ft.exists():
+                ft.delete()
+
+                context['link'] = ft[0]
+                return render(request, app_name / 'edit_channel_ok.html', context)
+
+        context['summary_text'] = "Could not edit video"
+
+        return render(request, app_name / 'summary_present', context)
+    else:
+        form = NewChannelForm(instance=obj)
+        form.method = "POST"
+        form.action_url = reverse('catalog:editchannel', args = [pk])
+        context['form'] = form
+        return render(request, app_name / 'edit_channel.html', context)
