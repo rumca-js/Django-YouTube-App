@@ -36,7 +36,7 @@ class ImportChannelsForm(forms.Form):
     rawchannels = forms.CharField(widget=forms.Textarea(attrs={'name':'rawchannels', 'rows':30, 'cols':100}))
 
 
-class ChoiceForm(forms.Form):
+class LinkSelectionForm(forms.Form):
     """
     Category choice form
     """
@@ -45,6 +45,7 @@ class ChoiceForm(forms.Form):
     subcategory = forms.CharField(widget=forms.Select(choices=()))
     artist = forms.CharField(widget=forms.Select(choices=()))
     album = forms.CharField(widget=forms.Select(choices=()))
+    search = forms.CharField(label='Search', max_length = 500, required=False)
 
     def __init__(self, *args, **kwargs):
         self.args = kwargs.pop('args', ())
@@ -52,6 +53,12 @@ class ChoiceForm(forms.Form):
 
     def get_filtered_objects(self):
         parameter_map = self.get_filter_args()
+
+        if 'search' in parameter_map:
+            print("parameters: " + parameter_map['search'])
+            parameter_map["title__icontains"] = parameter_map['search']
+            del parameter_map['search']
+
         self.filtered_objects = VideoLinkDataModel.objects.filter(**parameter_map)
         return self.filtered_objects
 
@@ -78,6 +85,7 @@ class ChoiceForm(forms.Form):
         self.fields['subcategory'] = forms.CharField(widget=forms.Select(choices=subcategories, attrs=attr), initial=subcategory_init)
         self.fields['artist'] = forms.CharField(widget=forms.Select(choices=artists, attrs=attr), initial=artist_init)
         self.fields['album'] = forms.CharField(widget=forms.Select(choices=albums, attrs=attr), initial=album_init)
+        self.fields['search'] = forms.CharField(label='Search', max_length = 500, required=False, initial=self.args.get("search"))
 
     def get_init(self, column):
         filters = self.get_filter_args()
@@ -123,6 +131,10 @@ class ChoiceForm(forms.Form):
         album = self.args.get("album")
         if album and album != "Any":
            parameter_map['album'] = album
+
+        search = self.args.get("search")
+        if search:
+           parameter_map['search'] = search
 
         return parameter_map
 

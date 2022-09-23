@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="{% static 'catalog/css/styles.css' %}?{% now "U" %}">
   {% endif %}
   <link rel="stylesheet" href="{% static 'catalog/css/bootstrap5.1.3.min.css' %}">
+  <link rel="shortcut icon" type="image/png" href="{% static 'catalog/icons/icons8-tv-show-32.png' %}"/>
 </head>
 <body>
   <div class="container-fluid">
@@ -22,50 +23,50 @@
         <ul class="sidebar-nav">
             <li><a href="{% url 'catalog:index' %}" class="mainbutton">
                     <div>
-                        <img src="{% static 'icons/icons8-home-96.png' %}" height={{icon_size}} />
+                        <img src="{% static 'catalog/icons/icons8-home-96.png' %}" height={{icon_size}} />
                         Home</div>
                 </a>
             </li>
             <li>
                 <a href="{% url 'catalog:links' %}" class="mainbutton">
                     <div>
-                        <img src="{% static 'icons/icons8-link-90.png' %}" height={{icon_size}} />
+                        <img src="{% static 'catalog/icons/icons8-link-90.png' %}" height={{icon_size}} />
                         All links</div></a></li>
             <li>
                 <a href="{% url 'catalog:channels' %}" class="mainbutton">
                     <div>
-                        <img src="{% static 'icons/icons8-channel-96.png' %}" height={{icon_size}} />
+                        <img src="{% static 'catalog/icons/icons8-channel-96.png' %}" height={{icon_size}} />
                         All Channels</div></a></li>
             {% if user.is_authenticated %}
             <hr>
             <li>
                 <a href="{% url 'catalog:addlink' %}" class="mainbutton">
                     <div>
-                        <img src="{% static 'icons/icons8-add-link-96.png' %}" height={{icon_size}} />
+                        <img src="{% static 'catalog/icons/icons8-add-link-96.png' %}" height={{icon_size}} />
                         Add link</div></a></li>
             <li>
                 <a href="{% url 'catalog:addchannel' %}" class="mainbutton">
                     <div>
-                        <img src="{% static 'icons/icons8-channel-add-96.png' %}" height={{icon_size}} />
+                        <img src="{% static 'catalog/icons/icons8-channel-add-96.png' %}" height={{icon_size}} />
                         Add channel</div></a></li>
             <li>
                 <a href="{% url 'catalog:configuration' %}" class="mainbutton">
                     <div>
-                        <img src="{% static 'icons/icons8-configuration-67.png' %}" height={{icon_size}} />
+                        <img src="{% static 'catalog/icons/icons8-configuration-67.png' %}" height={{icon_size}} />
                         Configuration</div></a></li>
 
             <hr>
             <li>
                 <a href="{% url 'admin:logout' %}" class="mainbutton">
                     <div>
-                        <img src="{% static 'icons/icons8-logout-100.png' %}" height={{icon_size}} />
+                        <img src="{% static 'catalog/icons/icons8-logout-100.png' %}" height={{icon_size}} />
                         Logout</div></a></li>
             {% else %}
             <hr>
             <li>
                 <a href="{% url 'admin:login' %}" class="mainbutton">
                     <div>
-                        <img src="{% static 'icons/icons8-login-100.png' %}" height={{icon_size}} />
+                        <img src="{% static 'catalog/icons/icons8-login-100.png' %}" height={{icon_size}} />
                         Login</div></a></li>
             {% endif %}
         </ul>

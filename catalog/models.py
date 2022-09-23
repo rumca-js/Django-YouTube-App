@@ -59,7 +59,7 @@ class VideoLinkDataModel(models.Model):
 
 class VideoLinkDetailsDataModel(models.Model):
 
-    url = models.CharField(max_length=1000, help_text='url') #, unique=True)
+    url = models.CharField(max_length=1000, help_text='url', unique=True)
     details_json = models.CharField(max_length=1000, help_text='details_json')
     dead = models.BooleanField(default = False, help_text='dead')
 

@@ -6,7 +6,7 @@ from django.db.models.query import QuerySet
 from django.db.models.query import EmptyQuerySet
 
 from .models import VideoLinkDataModel, VideoChannelDataModel, YouTubeLinkComposite
-from .forms import NewLinkForm, ImportLinksForm, ChoiceForm, NewChannelForm, ImportChannelsForm
+from .forms import NewLinkForm, ImportLinksForm, LinkSelectionForm, NewChannelForm, ImportChannelsForm
 from .files.linkcsv import LinksData, LinkData
 from .files.channelcsv import ChannelsData, ChannelData
 from .basictypes import *
@@ -54,7 +54,7 @@ class LinkListView(generic.ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        self.filter_form = ChoiceForm(args = self.request.GET)
+        self.filter_form = LinkSelectionForm(args = self.request.GET)
         return self.filter_form.get_filtered_objects()
 
     def get_context_data(self, **kwargs):
@@ -111,6 +111,9 @@ def add_link(request):
     context = get_context(request)
     context['page_title'] += " - Add link"
 
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
+
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         method = "POST"
@@ -154,6 +157,9 @@ def import_links(request):
     context = get_context(request)
     context['page_title'] += " - Import links"
 
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
+
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         method = "POST"
@@ -195,6 +201,9 @@ def remove_link(request, pk):
     context = get_context(request)
     context['page_title'] += " - Remove link"
 
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
+
     ft = VideoLinkDataModel.objects.filter(id=pk)
     if ft.exists():
         ft.delete()
@@ -206,6 +215,9 @@ def remove_link(request, pk):
 def remove_all_links(request):
     context = get_context(request)
     context['page_title'] += "Remove all links"
+
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
 
     ft = VideoLinkDataModel.objects.all()
     if ft.exists():
@@ -247,6 +259,9 @@ def add_channel(request):
     context = get_context(request)
     context['page_title'] += " - Add channel"
 
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
+
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         method = "POST"
@@ -258,15 +273,8 @@ def add_channel(request):
         if form.is_valid():
             form.save()
 
-            ft = VideoChannelDataModel.objects.filter(url=model.url)
-            if ft.exists():
-                context['form'] = form
-                context['channel'] = ft[0]
-                return render(request, app_name / 'add_channel_exists.html', context)
-            else:
-                context['form'] = form
-                context['channel'] = model
-                return render(request, app_name / 'add_channel_added.html', context)
+            context["summary_text"] = "Added channel"
+            return render(request, app_name / 'summary_present.html', context)
         else:
             context["summary_text"] = "Form is invalid"
             return render(request, app_name / 'summary_present.html', context)
@@ -288,6 +296,9 @@ def add_channel(request):
 def import_channels(request):
     context = get_context(request)
     context['page_title'] += " - Import channels"
+
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
 
     form = None
     summary_text = ""
@@ -312,6 +323,7 @@ def import_channels(request):
                                                 subcategory=channel.subcategory)
                     record.save()
                     summary_text += channel.title + " " + channel.url + " " + channel.artist + " OK\n"
+                    context['summary_text'] = summary_text
         return render(request, app_name / 'import_channels_summary.html', context)
     else:
         form = ImportChannelsForm()
@@ -328,6 +340,9 @@ def remove_channel(request, pk):
     context = get_context(request)
     context['page_title'] += " - Remove channel"
 
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
+
     ft = VideoChannelDataModel.objects.filter(id=pk)
     if ft.exists():
         ft.delete()
@@ -339,6 +354,9 @@ def remove_channel(request, pk):
 def remove_all_channels(request):
     context = get_context(request)
     context['page_title'] += "Remove all channels"
+
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
 
     ft = VideoChannelDataModel.objects.all()
     if ft.exists():
@@ -376,6 +394,9 @@ def configuration(request):
     context = get_context(request)
     context['page_title'] += " - Configuration"
 
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
+
     c = Configuration.get_object()
     context['directory'] = c.directory
     context['version'] = c.version
@@ -396,6 +417,9 @@ def download_music(request, pk):
     context = get_context(request)
     context['page_title'] += " - Download music"
 
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
+
     ft = VideoLinkDataModel.objects.filter(id=pk)
     if ft.exists():
         context["summary_text"] = "Added to download queue"
@@ -411,6 +435,9 @@ def download_music(request, pk):
 def download_video(request, pk):
     context = get_context(request)
     context['page_title'] += " - Download video"
+
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
 
     ft = VideoLinkDataModel.objects.filter(id=pk)
     if ft.exists():
@@ -429,6 +456,9 @@ def edit_video(request, pk):
     context['page_title'] += " - Edit video"
     context['pk'] = pk
 
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
+
     ft = VideoLinkDataModel.objects.filter(id=pk)
     if not ft.exists():
        return render(request, app_name / 'edit_video_does_not_exist.html', context)
@@ -436,19 +466,14 @@ def edit_video(request, pk):
     obj = ft[0]
 
     if request.method == 'POST':
-        form = NewLinkForm(request.POST, instance=obj[0])
+        form = NewLinkForm(request.POST, instance=obj)
         context['form'] = form
 
         if form.is_valid():
             form.save()
 
-            ft = VideoLinkDataModel.objects.filter(url=model.url)
-            if ft.exists():
-                ft.delete()
-                model.save()
-
-                context['link'] = ft[0]
-                return render(request, app_name / 'edit_video_ok.html', context)
+            context['link'] = obj
+            return render(request, app_name / 'edit_video_ok.html', context)
 
         context['summary_text'] = "Could not edit video"
 
@@ -465,6 +490,9 @@ def edit_channel(request, pk):
     context = get_context(request)
     context['page_title'] += " - Edit channel"
     context['pk'] = pk
+
+    if not request.user.is_authenticated:
+        return render(request, app_name / 'missing_rights.html', context)
 
     ft = VideoChannelDataModel.objects.filter(id=pk)
     if not ft.exists():
