@@ -1,3 +1,6 @@
+import logging
+from pathlib import Path
+
 from django.shortcuts import render
 from django.views import generic
 from django.urls import reverse
@@ -10,7 +13,6 @@ from .forms import NewLinkForm, ImportLinksForm, LinkSelectionForm, NewChannelFo
 from .files.linkcsv import LinksData, LinkData
 from .files.channelcsv import ChannelsData, ChannelData
 from .basictypes import *
-from pathlib import Path
 
 
 # https://stackoverflow.com/questions/66630043/django-is-loading-template-from-the-wrong-app
@@ -68,7 +70,7 @@ class LinkListView(generic.ListView):
         self.filter_form.action_url = reverse('catalog:links')
 
         context['category_form'] = self.filter_form
-        context['page_title'] += " - Link List"
+        context['page_title'] += " - Link list"
 
         from django_user_agents.utils import get_user_agent
         user_agent = get_user_agent(self.request)

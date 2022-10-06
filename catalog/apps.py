@@ -1,16 +1,11 @@
 from django.apps import AppConfig
+import logging
 
 
 class CatalogConfig(AppConfig):
     name = 'catalog'
 
     def ready(self):
-        pass
-        #from .prjconfig import Configuration
-        #c = Configuration.get_object() 
-
-    def __del__(self):
-        pass
-        #from .prjconfig import Configuration
-        #c = Configuration.get_object() 
-        #c.close()
+        from .prjconfig import Configuration
+        c = Configuration.get_object() 
+        logging.info("App ready: catalog")

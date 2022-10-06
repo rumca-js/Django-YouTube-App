@@ -1,11 +1,13 @@
 from pathlib import Path
+import logging
+
 from .threads import *
 from .programwrappers import ytdlp
 from .basictypes import *
 
 from .models import YouTubeLinkComposite
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 class Configuration(object):
@@ -14,7 +16,7 @@ class Configuration(object):
    def __init__(self):
        self.directory = Path(".").resolve()
        self.version = __version__
-       self.server_log_file = self.directory / "server_log_file.txt"
+       self.server_log_file = self.directory / "log_server.txt"
 
        self.enable_logging()
        self.create_threads()
@@ -29,7 +31,7 @@ class Configuration(object):
 
        self.server_log_file.unlink(True)
 
-       logging.basicConfig(level=logging.INFO, filename=self.server_log_file)
+       logging.basicConfig(level=logging.INFO, filename=self.server_log_file, format='[%(asctime)s]%(levelname)s:%(message)s')
 
    def create_threads(self):
        download_music_thread = ThreadJobCommon("download-music")
@@ -101,8 +103,7 @@ class Configuration(object):
       logging.info("Downloading channel details: ")
 
    def t_refresh(self, item):
-
-      logging.info("Refreshing: ")
+      logging.info("Refreshing")
 
       from .models import VideoLinkDataModel
       objs = VideoLinkDataModel.objects.all()
