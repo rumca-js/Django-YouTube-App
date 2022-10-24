@@ -7,5 +7,6 @@ class CatalogConfig(AppConfig):
 
     def ready(self):
         from .prjconfig import Configuration
-        c = Configuration.get_object() 
-        logging.info("App ready: catalog")
+        c = Configuration.get_object(CatalogConfig.name)
+        log = logging.getLogger(CatalogConfig.name)
+        log.info("APP ready: {0}".format(CatalogConfig.name))

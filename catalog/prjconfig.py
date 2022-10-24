@@ -7,31 +7,63 @@ from .basictypes import *
 
 from .models import YouTubeLinkComposite
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 class Configuration(object):
    obj = None
 
-   def __init__(self):
-       self.directory = Path(".").resolve()
+   def __init__(self, app_name):
+       self.app_name = app_name
+       self.directory = Path("/home/rumpel/WorkDir/DjangoPage/linklibrary")
        self.version = __version__
-       self.server_log_file = self.directory / "log_server.txt"
 
        self.enable_logging()
        self.create_threads()
 
-   def get_object():
+   def get_object(app_name):
+       app_name = str(app_name)
        if not Configuration.obj:
-           Configuration.obj = Configuration()
-       return Configuration.obj
+           Configuration.obj = {app_name : Configuration(app_name)}
+       if app_name not in Configuration.obj:
+           Configuration.obj[app_name] = Configuration(app_name)
 
-   def enable_logging(self):
+       return Configuration.obj[app_name]
+
+   def enable_logging(self, create_file = True):
+       self.server_log_file = self.directory / "log_{0}.txt".format(self.app_name)
+       self.global_log_file = self.directory / "log_global.txt"
+
        logging.shutdown()
 
+       self.global_log_file.unlink(True)
        self.server_log_file.unlink(True)
 
-       logging.basicConfig(level=logging.INFO, filename=self.server_log_file, format='[%(asctime)s]%(levelname)s:%(message)s')
+       logging.basicConfig(level=logging.INFO, filename=self.global_log_file, format='[%(asctime)s %(name)s]%(levelname)s:%(message)s')
+
+       # create logger for prd_ci
+       log = logging.getLogger(self.app_name)
+       log.setLevel(level=logging.INFO)
+
+       # create formatter and add it to the handlers
+       formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+       if create_file:
+               # create file handler for logger.
+               fh = logging.FileHandler(self.server_log_file)
+               fh.setLevel(level=logging.DEBUG)
+               fh.setFormatter(formatter)
+       # reate console handler for logger.
+       ch = logging.StreamHandler()
+       ch.setLevel(level=logging.DEBUG)
+       ch.setFormatter(formatter)
+
+       # add handlers to logger.
+       if create_file:
+           log.addHandler(fh)
+
+       log.addHandler(ch)
+       return  log 
 
    def create_threads(self):
        download_music_thread = ThreadJobCommon("download-music")
@@ -74,7 +106,8 @@ class Configuration(object):
          raise NotImplemented
 
    def t_download_music(self, item):
-      logging.info("Downloading music: " + item.url + " " + item.title)
+      log = logging.getLogger(self.app_name)
+      log.info("Downloading music: " + item.url + " " + item.title)
       # TODO pass dir?
 
       file_name = Path(item.artist) / item.album / item.title
@@ -85,13 +118,16 @@ class Configuration(object):
       yt.download_audio(file_name)
 
    def t_download_video(self, item):
-      logging.info("Downloading video: " + item.url + " " + item.title)
+      log = logging.getLogger(self.app_name)
+
+      log.info("Downloading video: " + item.url + " " + item.title)
 
       yt = ytdlp.YTDLP(item.url)
       yt.download_video('file.mp4')
 
    def t_download_link_details(self, item):
-      #logging.info("Downloading details: " + item.url + " " + item.title)
+      log = logging.getLogger(self.app_name)
+      #log.info("Downloading details: " + item.url + " " + item.title)
 
       from .files.returnyoutubedislikeapijson import YouTubeThumbsDown
       code = item.get_video_code()
@@ -100,10 +136,12 @@ class Configuration(object):
       y.download_details()
 
    def t_download_channel_details(self, item):
-      logging.info("Downloading channel details: ")
+      log = logging.getLogger(self.app_name)
+      log.info("Downloading channel details: ")
 
    def t_refresh(self, item):
-      logging.info("Refreshing")
+      log = logging.getLogger(self.app_name)
+      log.info("Refreshing")
 
       from .models import VideoLinkDataModel
       objs = VideoLinkDataModel.objects.all()
@@ -123,9 +161,7 @@ class Configuration(object):
        self.threads[3].add_to_process_list(item)
 
    def get_export_path(self):
-       from .views import app_name
-       return self.directory / 'exports' / app_name
+       return self.directory / 'exports' / self.app_name
 
    def get_data_path(self):
-       from .views import app_name
-       return self.directory / 'data' / app_name
+       return self.directory / 'data' / self.app_name

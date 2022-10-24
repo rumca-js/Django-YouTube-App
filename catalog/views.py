@@ -25,7 +25,7 @@ def init_context(context):
     context["base_generic"] = str(app_name / "base_generic.html")
     context["icon_size"] = "30px"
 
-    c = Configuration.get_object()
+    c = Configuration.get_object(str(app_name))
     context['app_version'] = c.version
 
     return context
@@ -399,7 +399,7 @@ def configuration(request):
     if not request.user.is_authenticated:
         return render(request, app_name / 'missing_rights.html', context)
 
-    c = Configuration.get_object()
+    c = Configuration.get_object(str(app_name))
     context['directory'] = c.directory
     context['version'] = c.version
     context['database_size_bytes'] = get_directory_size_bytes(c.directory)
@@ -428,7 +428,7 @@ def download_music(request, pk):
     else:
         context["summary_text"] = "Failed to add to download queue"
 
-    c = Configuration.get_object()
+    c = Configuration.get_object(str(app_name))
     c.download_music(ft[0])
 
     return render(request, app_name / 'summary_present.html', context)
@@ -447,7 +447,7 @@ def download_video(request, pk):
     else:
         context["summary_text"] = "Failed to add to download queue"
 
-    c = Configuration.get_object()
+    c = Configuration.get_object(str(app_name))
     c.download_video(ft[0])
 
     return render(request, app_name / 'summary_present.html', context)
