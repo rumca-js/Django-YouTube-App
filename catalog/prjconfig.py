@@ -15,7 +15,7 @@ class Configuration(object):
 
    def __init__(self, app_name):
        self.app_name = app_name
-       self.directory = Path("/home/rumpel/WorkDir/DjangoPage/linklibrary")
+       self.directory = Path(".")
        self.version = __version__
 
        self.enable_logging()
