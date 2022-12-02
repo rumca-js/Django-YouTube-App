@@ -3,8 +3,8 @@
 {% block content %}
 
 <ul>
-    <li>Channel added: <a href="{{ channel.get_absolute_url }}">{{channel.title}}</a></li>
-    <li><a href="{% url 'addchannel' %}">Add new channel</a></li>
+    <li>Channel added: <a href="{{ channel.get_absolute_url }}" class="simplebutton">{{channel.title}}</a></li>
+    <li><a href="{% url 'addchannel' %}" class="simplebutton">Add new channel</a></li>
 </ul>
 
 {% endblock %}

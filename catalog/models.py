@@ -156,7 +156,11 @@ class YouTubeLinkComposite(object):
 
     def request_details_download(self):
         from .prjconfig import Configuration
-        c = Configuration()
+
+        from . import views
+        app_name = str(views.app_name)
+
+        c = Configuration.get_object(str(app_name))
         c.download_link_details(self)
 
     def download_details(self):

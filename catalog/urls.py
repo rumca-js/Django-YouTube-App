@@ -1,5 +1,7 @@
 
 from django.urls import path
+from django.urls import include
+from django.contrib.auth import views as auth
 from . import views
 
 app_name = str(views.app_name)
@@ -27,4 +29,7 @@ urlpatterns = [
 
    path('export/', views.export_data, name='exportdata'),
    path('configuration/', views.configuration, name='configuration'),
+
+   path('accounts/', include('django.contrib.auth.urls')),
+   path('logout/', auth.LogoutView.as_view(template_name ='catalog/index.html'), name ='logout'),
 ]

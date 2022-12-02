@@ -3,8 +3,8 @@
 {% block content %}
 
 <ul>
-    <li>Link added: <a href="{{ link.get_absolute_url }}">{{link.title}}</a></li>
-    <li><a href="{% url 'catalog:addlink' %}">Add new link</a></li>
+    <li>Link added: <a href="{{ link.get_absolute_url }}" class="simplebutton">{{link.title}}</a></li>
+    <li><a href="{% url 'catalog:addlink' %}" class="simplebutton">Add new link</a></li>
 </ul>
 
 {% endblock %}
