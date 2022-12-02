@@ -37,7 +37,7 @@
                     <div>
                         <img src="{% static 'catalog/icons/icons8-channel-96.png' %}" height={{icon_size}} />
                         All Channels</div></a></li>
-            {% if user.is_authenticated %}
+            {% if user.is_staff %}
             <hr>
             <li>
                 <a href="{% url 'catalog:addlink' %}" class="mainbutton">
